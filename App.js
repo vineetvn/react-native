@@ -8,44 +8,51 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
-export default function App() {
-  const [goalText, setGoalText] = useState("");
+const App = () => {
   const [courseGoals, setCourseGoals] = useState([
-    { key: Math.random().toString(), text: "Learn React Native" },
-    { key: Math.random().toString(), text: "Learn NodeJS" },
-    { key: Math.random().toString(), text: "Learn Graph QL" },
+    { id: Math.random().toString(), text: "Learn React Native" },
+    { id: Math.random().toString(), text: "Learn NodeJS" },
+    { id: Math.random().toString(), text: "Learn Graph QL" },
   ]);
 
-  function goalInputHandler(enteredText) {
-    setGoalText(enteredText);
-  }
+  const [isModalVisible, setIsModalVisble] = useState(false);
 
-  function addGoalHandler() {
+  const addGoalHandler = (goalText) => {
     setCourseGoals((currentCourseGoals) => [
       ...currentCourseGoals,
       { id: Math.random().toString(), text: goalText },
     ]);
-  }
+    setIsModalVisble(false);
+  };
+
+  const onDeleteItem = (itemID) => {
+    setCourseGoals((currentCourseGoals) =>
+      currentCourseGoals.filter((goal) => goal.id !== itemID)
+    );
+  };
+
   return (
     // View is similar to div in browser
     <View style={styles.appContainer}>
-      <View style={styles.inputCOntainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Your course goal!"
-          onChangeText={goalInputHandler}
-        />
-        <Button title="Add Goal" onPress={addGoalHandler} />
-      </View>
+      <Button
+        title="Add New Goal"
+        color="#5e08cc"
+        onPress={() => setIsModalVisble(true)}
+      />
+      <GoalInput
+        addGoalHandler={addGoalHandler}
+        visible={isModalVisible}
+        closeModal={() => setIsModalVisble(false)}
+      />
       <View style={styles.goalsContainer}>
         {/* Component handles scrollable lists and providing unique keys. It also only renders the components required at a time */}
         <FlatList
           data={courseGoals}
           renderItem={({ item }) => (
-            <View style={styles.goalItem}>
-              <Text style={styles.goalItemText}>{item.text}</Text>
-            </View>
+            <GoalItem item={item} deleteGoal={onDeleteItem} />
           )}
           // use this when you dont have a key prop and want to use another prop as unique key
           keyExtractor={({ id }) => id}
@@ -53,7 +60,7 @@ export default function App() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   appContainer: {
@@ -61,32 +68,9 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 16,
   },
-  inputCOntainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    width: "70%",
-    marginRight: 8,
-    padding: 8,
-  },
   goalsContainer: {
     flex: 5,
   },
-  goalItem: {
-    margin: 8,
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: "#5e08cc",
-  },
-  goalItemText: {
-    color: "white",
-  },
 });
+
+export default App;
